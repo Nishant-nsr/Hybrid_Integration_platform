@@ -1,0 +1,538 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "networkSecurityGroups_logicapp_nsg_externalid": {
+            "defaultValue": "/subscriptions/7c5fbe39-ada3-4728-8e6f-506a6df63e70/resourceGroups/HybridEnv-rg/providers/Microsoft.Network/networkSecurityGroups/logicapp-nsg",
+            "type": "String"
+        },
+        "routeTables_logicapp_route_table_externalid": {
+            "defaultValue": "/subscriptions/7c5fbe39-ada3-4728-8e6f-506a6df63e70/resourceGroups/HybridEnv-rg/providers/Microsoft.Network/routeTables/logicapp-route-table",
+            "type": "String"
+        },
+        "logicAppFEname": {
+            "defaultValue": "Logicworkflow11",
+            "type": "String"
+        },
+        "logicApp1name": {
+            "defaultValue": "Logicsecondworkflow22",
+            "type": "String"
+        },
+        "logicApp2name": {
+            "defaultValue": "Logicthirdworkflow33",
+            "type": "String"
+        },
+        "fileShareName": {
+            "defaultValue": "logicshare1",
+            "type": "String"
+        },
+        "table_name": {
+            "defaultValue": "logicapptable29865",
+            "type": "String"
+        },
+        "fileShareName1": {
+            "defaultValue": "logicshare2",
+            "type": "String"
+        },
+        "runtimeurleventgridtable": {
+            "defaultValue": "https://cde031e6cf1a3669.16.common.logic-eastus.azure-apihub.net/apim/azureeventgridpublish/6369e72d7b394152ab273615c45073b4",
+            "type": "String"
+        },
+        "fileShareName2": {
+            "defaultValue": "logicshare3",
+            "type": "String"
+        },
+        "appInsightName": {
+            "defaultValue": "logic-test-appinsights",
+            "type": "String"
+        },
+        "runtimeurlsalesforce": {
+            "defaultValue": "https://cde031e6cf1a3669.16.common.logic-eastus.azure-apihub.net/apim/salesforce/5c92cca2bd6840a58299a3fc1da58774",
+            "type": "String"
+        },
+        "runtimeurleventgrid": {
+            "defaultValue": "https://cde031e6cf1a3669.16.common.logic-eastus.azure-apihub.net/apim/azureeventgrid/899483329b294e5f80f410f5c1b968d8",
+            "type": "String"
+        },
+        "use32BitWorkerProcess": {
+            "defaultValue": true,
+            "type": "Bool"
+        },
+        "location": {
+            "defaultValue": "[resourceGroup().location]",
+            "type": "String",
+            "metadata": {
+                "description": "Location to deploy resources to."
+            }
+        },
+        "hostingPlanFEName": {
+            "defaultValue": "LogicAppStandard23",
+            "type": "String"
+        },
+        "container_name1": {
+            "defaultValue": "logic-container1",
+            "type": "String"
+        },
+        "container_name2": {
+            "defaultValue": "logic-container2",
+            "type": "String"
+        },
+        "contentStorageAccountName": {
+            "defaultValue": "logicappstoraccnt89446",
+            "type": "String"
+        },
+        "sku": {
+            "defaultValue": "WorkflowStandard",
+            "type": "String"
+        },
+        "skuCode": {
+            "defaultValue": "WS1",
+            "type": "String"
+        },
+        "workerSize": {
+            "defaultValue": "3",
+            "type": "String"
+        },
+        "workerSizeId": {
+            "defaultValue": "3",
+            "type": "String"
+        },
+        "numberOfWorkers": {
+            "defaultValue": "1",
+            "type": "String"
+        },
+        "vnetName": {
+            "defaultValue": "LAV2VNET",
+            "type": "String",
+            "metadata": {
+                "description": "Name of the VNET that the Function App and Storage account will communicate over."
+            }
+        },
+        "subnetName": {
+            "defaultValue": "Subnet1",
+            "type": "String"
+        },
+        "virtualNetworkAddressPrefix": {
+            "defaultValue": "10.100.0.0/16",
+            "type": "String",
+            "metadata": {
+                "description": "VNET address space."
+            }
+        },
+        "functionSubnetAddressPrefix": {
+            "defaultValue": "10.100.0.0/24",
+            "type": "String",
+            "metadata": {
+                "description": "Function App's subnet address range."
+            }
+        },
+        "privateEndpointSubnetAddressPrefix": {
+            "defaultValue": "10.100.1.0/24",
+            "type": "String",
+            "metadata": {
+                "description": "Storage account's private endpoint's subnet address range."
+            }
+        }
+    },
+    "variables": {},
+    "resources": [
+
+{
+    "type": "Microsoft.Web/sites",
+    "apiVersion": "2018-11-01",
+    "name": "[parameters('logicAppFEname')]",
+    "location": "[parameters('location')]",
+    "dependsOn": [
+        "[concat('Microsoft.Web/serverfarms/', parameters('hostingPlanFEName'))]"
+    ],
+    "tags": {},
+    "kind": "functionapp,workflowapp",
+    "identity": {
+        "type": "SystemAssigned"
+    },
+    "properties": {
+        "name": "[parameters('logicAppFEname')]",
+        "siteConfig": {
+            "appSettings": [
+                {
+                    "name": "FUNCTIONS_EXTENSION_VERSION",
+                    "value": "~3"
+                },
+                {
+                    "name": "subscriptionid",
+                    "value": "[subscription().subscriptionId]"
+                },
+                {
+                    "name": "rgname",
+                    "value": "[resourceGroup().name]"
+                },
+                {
+                    "name": "runtimeurleventgrid",
+                    "value": "[parameters('runtimeurleventgrid')]"
+                },
+                {
+                    "name": "rglocation",
+                    "value": "[parameters('location')]"
+                },
+                {
+                    "name": "runtimeurlsalesforce",
+                    "value": "[parameters('runtimeurlsalesforce')]"
+          
+                },
+                {
+                    "name": "FUNCTIONS_WORKER_RUNTIME",
+                    "value": "node"
+                },
+                {
+                    "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                    "value": "[reference(resourceId('Microsoft.Insights/components', parameters('appInsightName')), '2015-05-01').InstrumentationKey]"
+                },
+                {
+                    "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+                    "value": "[reference(resourceId('Microsoft.Insights/components', parameters('appInsightName')), '2015-05-01').ConnectionString]"
+                },
+                {
+                    "name": "AzureWebJobsStorage",
+                    "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('contentStorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('contentStorageAccountName')), '2019-06-01').keys[0].value,';EndpointSuffix=','core.windows.net')]"
+                },
+                {
+                    "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+                    "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('contentStorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('contentStorageAccountName')), '2019-06-01').keys[0].value,';EndpointSuffix=','core.windows.net')]"
+                },
+                {
+                    "name": "WEBSITE_CONTENTSHARE",
+                    "value": "[toLower(parameters('fileShareName'))]"
+                },
+                {
+                    "name": "APP_KIND",
+                    "value": "workflowApp"
+                },
+                {
+                    "name": "WEBSITE_VNET_ROUTE_ALL",
+                    "value": "1"
+                },
+                {
+                    "name": "AzureFunctionsJobHost__extensionBundle__id",
+                    "value": "Microsoft.Azure.Functions.ExtensionBundle.Workflows",
+                    "slotSetting": false
+                },
+                {
+                    "name": "AzureFunctionsJobHost__extensionBundle__version",
+                    "value": "[1.*, 2.0.0)",
+                    "slotSetting": false
+                },
+                {
+                    "name": "WEBSITE_CONTENTOVERVNET",
+                    "value": "1",
+                    "slotSetting": false
+                }
+            ],
+            "use32BitWorkerProcess": "[parameters('use32BitWorkerProcess')]",
+            "cors": {
+                "allowedOrigins": [
+                    "https://afd.hosting.portal.azure.net",
+                    "https://afd.hosting-ms.portal.azure.net",
+                    "https://hosting.portal.azure.net",
+                    "https://ms.hosting.portal.azure.net",
+                    "https://ema-ms.hosting.portal.azure.net",
+                    "https://ema.hosting.portal.azure.net",
+                    "https://ema.hosting.portal.azure.net"
+                ]
+            }
+        },
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', parameters('hostingPlanFEName'))]",
+        "clientAffinityEnabled": true
+    },
+    "resources": [
+        {
+            "type": "networkconfig",
+            "apiVersion": "2018-11-01",
+            "name": "virtualNetwork",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[parameters('logicAppFEname')]"
+            ],
+            "properties": {
+                "subnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets',parameters('vnetName'), parameters('subnetName'))]",
+                "swiftSupported": true
+            }
+        }
+    ]
+},
+{
+    "type": "Microsoft.Web/sites",
+    "apiVersion": "2018-11-01",
+    "name": "[parameters('logicApp1name')]",
+    "location": "[parameters('location')]",
+    "dependsOn": [
+        "[concat('Microsoft.Web/serverfarms/', parameters('hostingPlanFEName'))]"
+    ],
+    "tags": {},
+    "kind": "functionapp,workflowapp",
+    "identity": {
+        "type": "SystemAssigned"
+    },
+    "properties": {
+        "name": "[parameters('logicApp1name')]",
+        "siteConfig": {
+            "appSettings": [
+                {
+                    "name": "FUNCTIONS_EXTENSION_VERSION",
+                    "value": "~3"
+                },
+                {
+                    "name": "FUNCTIONS_WORKER_RUNTIME",
+                    "value": "node"
+                },
+                {
+                    "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                    "value": "[reference(resourceId('Microsoft.Insights/components', parameters('appInsightName')), '2015-05-01').InstrumentationKey]"
+                },
+                {
+                    "name": "blobendpoint",
+                    "value": "[concat('https://', parameters('contentStorageAccountName'), '.blob.core.windows.net/')]"
+                },
+                {
+                    "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+                    "value": "[reference(resourceId('Microsoft.Insights/components', parameters('appInsightName')), '2015-05-01').ConnectionString]"
+                },
+                {
+                    "name": "AzureWebJobsStorage",
+                    "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('contentStorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('contentStorageAccountName')), '2019-06-01').keys[0].value,';EndpointSuffix=','core.windows.net')]"
+                },
+                {
+                    "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+                    "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('contentStorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('contentStorageAccountName')), '2019-06-01').keys[0].value,';EndpointSuffix=','core.windows.net')]"
+                },
+                {
+                    "name": "WEBSITE_CONTENTSHARE",
+                    "value": "[toLower(parameters('fileShareName1'))]"
+                },
+                {
+                    "name": "containername",
+                    "value": "[parameters('container_name1')]"
+                },
+                {
+                    "name": "APP_KIND",
+                    "value": "workflowApp"
+                },
+                {
+                    "name": "WEBSITE_VNET_ROUTE_ALL",
+                    "value": "1"
+                },
+                {
+                    "name": "AzureFunctionsJobHost__extensionBundle__id",
+                    "value": "Microsoft.Azure.Functions.ExtensionBundle.Workflows",
+                    "slotSetting": false
+                },
+                {
+                    "name": "AzureFunctionsJobHost__extensionBundle__version",
+                    "value": "[1.*, 2.0.0)",
+                    "slotSetting": false
+                },
+                {
+                    "name": "WEBSITE_CONTENTOVERVNET",
+                    "value": "1",
+                    "slotSetting": false
+                }
+            ],
+            "use32BitWorkerProcess": "[parameters('use32BitWorkerProcess')]",
+            "cors": {
+                "allowedOrigins": [
+                    "https://afd.hosting.portal.azure.net",
+                    "https://afd.hosting-ms.portal.azure.net",
+                    "https://hosting.portal.azure.net",
+                    "https://ms.hosting.portal.azure.net",
+                    "https://ema-ms.hosting.portal.azure.net",
+                    "https://ema.hosting.portal.azure.net",
+                    "https://ema.hosting.portal.azure.net"
+                ]
+            }
+        },
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', parameters('hostingPlanFEName'))]",
+        "clientAffinityEnabled": true
+    },
+    "resources": [
+        {
+            "type": "networkconfig",
+            "apiVersion": "2018-11-01",
+            "name": "virtualNetwork",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[parameters('logicApp1name')]"
+            ],
+            "properties": {
+                "subnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets',parameters('vnetName'), parameters('subnetName'))]",
+                "swiftSupported": true
+            }
+        }
+    ]
+},
+{
+    "type": "Microsoft.Web/sites",
+    "apiVersion": "2018-11-01",
+    "name": "[parameters('logicApp2name')]",
+    "location": "[parameters('location')]",
+    "dependsOn": [
+        "[concat('Microsoft.Web/serverfarms/', parameters('hostingPlanFEName'))]"
+    ],
+    "tags": {},
+    "kind": "functionapp,workflowapp",
+    "identity": {
+        "type": "SystemAssigned"
+    },
+    "properties": {
+        "name": "[parameters('logicApp2name')]",
+        "siteConfig": {
+            "appSettings": [
+                {
+                    "name": "FUNCTIONS_EXTENSION_VERSION",
+                    "value": "~3"
+                },
+                {
+                    "name": "FUNCTIONS_WORKER_RUNTIME",
+                    "value": "node"
+                },
+                {
+                    "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                    "value": "[reference(resourceId('Microsoft.Insights/components', parameters('appInsightName')), '2015-05-01').InstrumentationKey]"
+                },
+                {
+                    "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+                    "value": "[reference(resourceId('Microsoft.Insights/components', parameters('appInsightName')), '2015-05-01').ConnectionString]"
+                },
+                {
+                    "name": "AzureWebJobsStorage",
+                    "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('contentStorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('contentStorageAccountName')), '2019-06-01').keys[0].value,';EndpointSuffix=','core.windows.net')]"
+                },
+                {
+                    "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+                    "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('contentStorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('contentStorageAccountName')), '2019-06-01').keys[0].value,';EndpointSuffix=','core.windows.net')]"
+                },
+                {
+                    "name": "WEBSITE_CONTENTSHARE",
+                    "value": "[toLower(parameters('fileShareName2'))]"
+                },
+                {
+                    "name": "APP_KIND",
+                    "value": "workflowApp"
+                },
+                {
+                    "name": "subscriptionid",
+                    "value": "[subscription().subscriptionId]"
+                },
+                {
+                    "name": "rgname",
+                    "value": "[resourceGroup().name]"
+                },
+                {
+                    "name": "sname",
+                    "value": "[parameters('contentStorageAccountName')]"
+                },
+                {
+                    "name": "runtimeurleventgridtable",
+                    "value": "[parameters('runtimeurleventgridtable')]"
+                },
+                {
+                    "name": "containername",
+                    "value": "[parameters('container_name1')]"
+                },
+                {
+                    "name": "blobendpoint",
+                    "value": "[concat('https://', parameters('contentStorageAccountName'), '.blob.core.windows.net/')]"
+                },
+                {   "name": "tableendpoint",
+                    "value": "[concat('https://', parameters('contentStorageAccountName'), '.table.core.windows.net/')]"
+                },
+                {
+                    "name": "tablename",
+                    "value": "[parameters('table_name')]"
+                },
+                {
+                    "name": "WEBSITE_VNET_ROUTE_ALL",
+                    "value": "1"
+                },
+                {
+                    "name": "AzureFunctionsJobHost__extensionBundle__id",
+                    "value": "Microsoft.Azure.Functions.ExtensionBundle.Workflows",
+                    "slotSetting": false
+                },
+                {
+                    "name": "AzureFunctionsJobHost__extensionBundle__version",
+                    "value": "[1.*, 2.0.0)",
+                    "slotSetting": false
+                },
+                {
+                    "name": "WEBSITE_CONTENTOVERVNET",
+                    "value": "1",
+                    "slotSetting": false
+                }
+            ],
+            "use32BitWorkerProcess": "[parameters('use32BitWorkerProcess')]",
+            "cors": {
+                "allowedOrigins": [
+                    "https://afd.hosting.portal.azure.net",
+                    "https://afd.hosting-ms.portal.azure.net",
+                    "https://hosting.portal.azure.net",
+                    "https://ms.hosting.portal.azure.net",
+                    "https://ema-ms.hosting.portal.azure.net",
+                    "https://ema.hosting.portal.azure.net",
+                    "https://ema.hosting.portal.azure.net"
+                ]
+            }
+        },
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', parameters('hostingPlanFEName'))]",
+        "clientAffinityEnabled": true
+    },
+    "resources": [
+        {
+            "type": "networkconfig",
+            "apiVersion": "2018-11-01",
+            "name": "virtualNetwork",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[parameters('logicApp2name')]"
+            ],
+            "properties": {
+                "subnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets',parameters('vnetName'), parameters('subnetName'))]",
+                "swiftSupported": true
+            }
+        }
+    ]
+},
+{
+    "type": "Microsoft.Web/serverfarms",
+    "apiVersion": "2018-11-01",
+    "name": "[parameters('hostingPlanFEName')]",
+    "location": "[parameters('location')]",
+    "dependsOn": [],
+    "tags": {},
+    "sku": {
+        "Tier": "[parameters('sku')]",
+        "Name": "[parameters('skuCode')]"
+    },
+    "kind": "",
+    "properties": {
+        "name": "[parameters('hostingPlanFEName')]",
+        "workerSize": "[parameters('workerSize')]",
+        "workerSizeId": "[parameters('workerSizeId')]",
+        "numberOfWorkers": "[parameters('numberOfWorkers')]",
+        "maximumElasticWorkerCount": "20"
+    }
+}
+],
+ "outputs": {
+    "logicapp1id": {
+        "type": "string",
+        "value": "[guid(parameters('logicAppFEname'))]"
+    },
+    "logicapp2id": {
+        "type": "string",
+        "value": "[resourceId('Microsoft.Web/sites', parameters('logicApp1name'))]"
+    },
+    "logicapp3id": {
+        "type": "string",
+        "value": "[resourceId('Microsoft.Web/sites', parameters('logicApp2name'))]"
+    }
+ }
+}

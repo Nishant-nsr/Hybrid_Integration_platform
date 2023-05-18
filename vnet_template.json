@@ -1,0 +1,127 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "virtualNetworks_virtnetname_name": {
+      "defaultValue": "virtnetname",
+      "type": "String"
+    },
+    "networkSecurityGroups_logicapp_nsg_externalid": {
+      "defaultValue": "/subscriptions/7c5fbe39-ada3-4728-8e6f-506a6df63e70/resourceGroups/HybridEnv-rg/providers/Microsoft.Network/networkSecurityGroups/logicapp-nsg",
+      "type": "String"
+    },
+    "routeTables_example_route_table_externalid": {
+      "defaultValue": "/subscriptions/7c5fbe39-ada3-4728-8e6f-506a6df63e70/resourceGroups/HybridEnv-rg/providers/Microsoft.Network/routeTables/logicapp-route-table",
+      "type": "String"
+    },
+    "vnetName": {
+      "defaultValue": "LAV2VNET",
+      "type": "String"
+    },
+    "subnetName": {
+      "defaultValue": "Subnet1",
+      "type": "String"
+    },
+
+    "virtualNetworkAddressPrefix": {
+      "defaultValue": "10.100.0.0/16",
+      "type": "String"
+    },
+    "functionSubnetAddressPrefix": {
+      "defaultValue": "10.100.0.0/24",
+      "type": "String"
+    },
+    "privateEndpointSubnetAddressPrefix": {
+      "defaultValue": "10.100.1.0/24",
+      "type": "String"
+    },
+    "subnet2_name": {
+      "defaultValue": "lav2withsecuredstorage",
+      "type": "String"
+    },
+    "location": {
+      "defaultValue": "East US",
+      "type": "String"
+    }
+
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-07-01",
+      "name": "[parameters('vnetName')]",
+      "location": "[parameters('Location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('virtualNetworkAddressPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[parameters('subnetName')]",
+            "properties": {
+              "networkSecurityGroup": {
+                "id": "[parameters('networkSecurityGroups_logicapp_nsg_externalid')]"
+              },
+              "routeTable": {
+                "id": "[parameters('routeTables_example_route_table_externalid')]"
+              },
+              "serviceEndpoints": [
+                {
+                    "service": "Microsoft.Storage",
+                    "locations": [
+                        "eastus",
+                        "westus",
+                        "westus3"
+                    ]
+                }
+            ],
+              "addressPrefix": "[parameters('functionSubnetAddressPrefix')]",
+              "privateEndpointNetworkPolicies": "Enabled",
+              "privateLinkServiceNetworkPolicies": "Enabled",
+              "delegations": [
+                {
+                  "name": "webapp",
+                  "properties": {
+                    "serviceName": "Microsoft.Web/serverFarms",
+                    "actions": [
+                      "Microsoft.Network/virtualNetworks/subnets/action"
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "[parameters('subnet2_name')]",
+            "properties": {
+              "networkSecurityGroup": {
+                "id": "[parameters('networkSecurityGroups_logicapp_nsg_externalid')]"
+              },
+              "routeTable": {
+                "id": "[parameters('routeTables_example_route_table_externalid')]"
+              },
+              "serviceEndpoints": [
+                {
+                    "service": "Microsoft.Storage",
+                    "locations": [
+                        "eastus",
+                        "westus",
+                        "westus3"
+                    ]
+                }
+            ],
+              "addressPrefix": "[parameters('privateEndpointSubnetAddressPrefix')]",
+              "privateLinkServiceNetworkPolicies": "Enabled",
+              "privateEndpointNetworkPolicies": "Disabled"
+            }
+          }
+        ],
+        "enableDdosProtection": false,
+        "enableVmProtection": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,95 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "connections_salesforce_name": {
+            "defaultValue": "salesforce",
+            "type": "String"
+        },
+       "connections_azureeventgrid_name": {
+        "defaultValue": "azureeventgrid",
+        "type": "String"
+      },
+      "logicAppSystemAssignedIdentityObjectId": {
+          "defaultValue": "azureeventgridpublish",
+          "type": "String"
+      },
+      "logicAppSystemAssignedIdentityTenantId": {
+          "defaultValue": "azureeventgridpublish",
+          "type": "String"
+      },
+      "logicApp1SystemAssignedIdentityObjectId": {
+          "defaultValue": "azureeventgridpublish",
+          "type": "String"
+      },
+      "logicApp1SystemAssignedIdentityTenantId": {
+          "defaultValue": "azureeventgridpublish",
+          "type": "String"
+      },
+      "logicApp2SystemAssignedIdentityObjectId": {
+          "defaultValue": "azureeventgridpublish",
+          "type": "String"
+      },
+      "logicApp2SystemAssignedIdentityTenantId": {
+          "defaultValue": "azureeventgridpublish",
+          "type": "String"
+      },
+      "connections_azureeventgridpublish_name": {
+        "defaultValue": "azureeventgridpublish",
+        "type": "String"
+    },
+    "location": {
+        "defaultValue": "eastus",
+        "type": "String"
+    }
+        
+    },
+    "variables": {},
+    "resources": [
+{
+    "type": "Microsoft.Web/connections/accessPolicies",
+    "apiVersion": "2016-06-01",
+    "name": "[concat(parameters('connections_salesforce_name'),'/',parameters('logicAppSystemAssignedIdentityObjectId'))]",
+    "location": "[parameters('location')]",
+    "properties": {
+        "principal": {
+            "type": "ActiveDirectory",
+            "identity": {
+                "tenantId": "[parameters('logicAppSystemAssignedIdentityTenantId')]",
+                "objectId": "[parameters('logicAppSystemAssignedIdentityObjectId')]"
+            }
+        }
+    }
+},
+{
+    "type": "Microsoft.Web/connections/accessPolicies",
+    "apiVersion": "2016-06-01",
+    "name": "[concat(parameters('connections_azureeventgrid_name'),'/',parameters('logicApp1SystemAssignedIdentityObjectId'))]",
+    "location": "[parameters('location')]",
+    "properties": {
+        "principal": {
+            "type": "ActiveDirectory",
+            "identity": {
+                "tenantId": "[parameters('logicApp2SystemAssignedIdentityTenantId')]",
+                "objectId": "[parameters('logicApp2SystemAssignedIdentityObjectId')]"
+            }
+        }
+    }
+},
+{
+    "type": "Microsoft.Web/connections/accessPolicies",
+    "apiVersion": "2016-06-01",
+    "name": "[concat(parameters('connections_azureeventgridpublish_name'),'/',parameters('logicApp2SystemAssignedIdentityObjectId'))]",
+    "location": "[parameters('location')]",
+    "properties": {
+        "principal": {
+            "type": "ActiveDirectory",
+            "identity": {
+                "tenantId": "[parameters('logicAppSystemAssignedIdentityTenantId')]",
+                "objectId": "[parameters('logicAppSystemAssignedIdentityObjectId')]"
+            }
+        }
+    }
+}
+]
+}
