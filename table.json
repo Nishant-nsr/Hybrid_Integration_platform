@@ -16,7 +16,10 @@
             {
             "type": "Microsoft.Storage/storageAccounts/tableServices/tables",
             "apiVersion": "2022-09-01",
-            "name": "[parameters('table_name')]",
+            "name": "[concat(parameters('storageaccount_name'), parameters('table_name'))]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageaccount_name'))]"
+            ],
             "dependsOn": [],
             "properties": {}
         }
