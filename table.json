@@ -1,27 +1,254 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": {
-    "storageaccount_name": {
-        "defaultValue": "logicappstoraccnt89446",
-         "type": "String"
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+    "storageAccountName": {
+    "type": "string",
+    "metadata": {
+    "description": "Specifies the name of the Azure Storage account."
+    }
     },
-    "table_name": {
-        "deafultValue": "logicapptable",
-         "type": "String"
-     }
-  },
-  "variables": {},
-  "resources": [
-            {
-            "type": "Microsoft.Storage/storageAccounts/tableServices/tables",
-            "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageaccount_name'), parameters('table_name'))]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageaccount_name'))]"
-            ],
-            "dependsOn": [],
-            "properties": {}
+    
+    
+    "queue": {
+    "type": "string",
+    "defaultValue": "queue",
+    "metadata": {
+    "description": "Specifies the name of the Azure Storage account."
+    }
+    },
+    
+    "container1Name": {
+    "type": "string",
+    "defaultValue": "logs1",
+    "metadata": {
+    "description": "Specifies the name of the blob container."
+    }
+    },
+    "container2Name": {
+    "type": "string",
+    "defaultValue": "logs2",
+    "metadata": {
+    "description": "Specifies the name of the blob container."
+    }
+    },
+    "container3Name": {
+    "type": "string",
+    "defaultValue": "logs3",
+    "metadata": {
+    "description": "Specifies the name of the blob container."
+    }
+    },
+    "vnet_name": {
+    "type": "string",
+    "defaultValue": "/subscriptions/e7beba2d-9586-4b39-81f1-0ef881bef010/resourceGroups/Testing/providers/Microsoft.Network/virtualNetworks/testh-vnet",
+    "metadata": {
+    "description": "Specifies the name of the blob container."
+    }
+    },
+    "subnet_name": {
+    "type": "string",
+    "defaultValue": "storage-subnet",
+    "metadata": {
+    "description": "Specifies the name of the blob container."
+    }
+    },
+    "subnet1_name": {
+        "type": "string",
+        "defaultValue": "Logicapp-subnet",
+        "metadata": {
+        "description": "Specifies the name of the blob container."
         }
+        },
+    "fileshare1": {
+    "type": "string",
+    "defaultValue": "fileshare",
+    "metadata": {
+    "description": "Specifies the name of the blob container."
+    }
+    },
+    "fileshare2": {
+    "type": "string",
+    "defaultValue": "fileshare1",
+    "metadata": {
+    "description": "Specifies the name of the blob container."
+    }
+    },
+    "fileshare3": {
+    "type": "string",
+    "defaultValue": "fileshare2",
+    "metadata": {
+    "description": "Specifies the name of the blob container."
+    }
+    },
+    
+    "tables": {
+    "type": "string",
+    "defaultValue": "logstable",
+    "metadata": {
+    "description": "Specifies the name of the blob container."
+    }
+    },
+    
+    
+    "location": {
+    "type": "string",
+    "defaultValue": "[resourceGroup().location]",
+    "metadata": {
+    "description": "Specifies the location in which the Azure Storage resources should be deployed."
+    }
+    }
+    },
+    "resources": [
+    {
+    "type": "Microsoft.Storage/storageAccounts",
+    "apiVersion": "2019-06-01",
+    "name": "[parameters('storageAccountName')]",
+    "location": "[parameters('location')]",
+    "sku": {
+    "name": "Standard_LRS",
+    "tier": "Standard"
+    },
+    "kind": "StorageV2",
+    "identity": {
+                    "type": "SystemAssigned"
+                },
+     "properties": {
+                    "defaultToOAuthAuthentication": false,
+                    "publicNetworkAccess": "Enabled",
+                    "allowCrossTenantReplication": true,
+                    "isNfsV3Enabled": false,
+                    "isSftpEnabled": false,
+                    "minimumTlsVersion": "TLS1_2",
+                    "allowBlobPublicAccess": false,
+                    "allowSharedKeyAccess": true,
+                    "isHnsEnabled": false,
+                    "networkAcls": {
+                        "resourceAccessRules": [],
+                        "bypass": "AzureServices",
+                        "virtualNetworkRules": [
+                            {
+                                "id": "[concat(parameters('vnet_name'), '/subnets/', parameters('subnet_name'))]",
+                                "action": "Allow"
+                            },
+                            {
+                                "id": "[concat(parameters('vnet_name'), '/subnets/', parameters('subnet1_name'))]",
+                                "action": "Allow"
+                            }
+                        ],
+                        "ipRules": [
+                            {
+                                "value": "13.234.188.94",
+                                "action": "Allow"
+                            },
+                            {
+                                "value": "3.6.19.117",
+                                "action": "Allow"
+                            }
+                        ],
+                        "defaultAction": "Deny"
+                    },
+                    "supportsHttpsTrafficOnly": true,
+                    "encryption": {
+                        "services": {
+                            "file": {
+                                "keyType": "Account",
+                                "enabled": true
+                            },
+                            "blob": {
+                                "keyType": "Account",
+                                "enabled": true
+                            }
+                        },
+                        "keySource": "Microsoft.Storage"
+                    },
+                    "accessTier": "Hot"
+                },
+    "resources": [
+    {
+    "type": "blobServices/containers",
+    "apiVersion": "2019-06-01",
+    "name": "[concat('default/', parameters('container1Name'))]",
+    "dependsOn": [
+    "[parameters('storageAccountName')]"
     ]
-}
+    },
+    {
+        "type": "blobServices/containers",
+        "apiVersion": "2019-06-01",
+        "name": "[concat('default/', parameters('container2Name'))]",
+        "dependsOn": [
+        "[parameters('storageAccountName')]"
+        ],
+        "sku": {
+            "name": "Standard_LRS",
+            "tier": "Standard"
+        }
+    },
+    {
+        "type": "blobServices/containers",
+        "apiVersion": "2019-06-01",
+        "name": "[concat('default/', parameters('container3Name'))]",
+        "dependsOn": [
+        "[parameters('storageAccountName')]"
+        ],
+        "sku": {
+            "name": "Standard_LRS",
+            "tier": "Standard"
+        }
+    },
+    {
+    "type": "queueServices/Queues",
+    "apiVersion": "2019-06-01",
+    "name": "[concat('default/', parameters('queue'))]",
+    "dependsOn": [
+    "[parameters('storageAccountName')]"
+    ],
+    "sku": {
+        "name": "Standard_LRS",
+        "tier": "Standard"
+    }
+    },
+    
+    
+    {
+    "type": "fileServices/shares",
+    "apiVersion": "2019-06-01",
+    "name": "[concat('default/', parameters('fileshare1'))]",
+    "dependsOn": [
+    "[parameters('storageAccountName')]"
+    ]
+    },
+    {
+        "type": "fileServices/shares",
+        "apiVersion": "2019-06-01",
+        "name": "[concat('default/', parameters('fileshare2'))]",
+        "dependsOn": [
+        "[parameters('storageAccountName')]"
+        ]
+    },
+    {
+        "type": "fileServices/shares",
+        "apiVersion": "2019-06-01",
+        "name": "[concat('default/', parameters('fileshare3'))]",
+        "dependsOn": [
+        "[parameters('storageAccountName')]"
+        ]
+    },
+    
+    {
+    "type": "tableServices/tables",
+    "apiVersion": "2019-06-01",
+    "name": "[concat('default/', parameters('tables'))]",
+    "dependsOn": [
+    "[parameters('storageAccountName')]"
+    ]
+    }
+    
+    
+    ]
+    }
+    
+    
+    ]
+    }
