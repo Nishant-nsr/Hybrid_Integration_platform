@@ -7,7 +7,7 @@
          "type": "String"
     },
     "table_name": {
-        "deafultValue": "logicapptable"
+        "deafultValue": "logicapptable",
          "type": "String"
      }
   },
