@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "storageaccount_name": {
+        "defaultValue": "logicappstoraccnt89446",
+         "type": "String"
+    },
+    "table_name": {
+        "deafultValue": "logicapptable"
+         "type": "String"
+     }
+  },
+  "variables": {},
+  "resources": [
+            {
+            "type": "Microsoft.Storage/storageAccounts/tableServices/tables",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('storageaccount_name'), parameters('table_name'))]",
+            "dependsOn": [],
+            "properties": {}
+        }
+    ]
+}
